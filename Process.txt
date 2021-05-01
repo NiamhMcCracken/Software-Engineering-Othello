@@ -1,0 +1,44 @@
+
+I decided to implement the board by using the example given in the assignment sheet as a template. After I initialised the board to look like in the assignment sheet I added 
+* between each square to diffrentiate them more from each other. Ateach run of the program I first set the board to be completely clear of all markers, before initialising
+the first four markers (denoted by B and W) in positions [Boardsize/2][[Boardsize/2-1] etc. I used Boardsize and defined it to size 8 rather than hardcoding it so I could change the board
+to smaller sizes during the testing process.
+
+I used a simple integer to denote the current player, 1 for player1 or 2 for player 2. I would pass this integer into functions, which would change the disc colour they were
+looking for depending on if the player was 1 or 2. Separate from the player integer, player1 and 2 are also allowed to enter their own names into character strings of size 10.
+These names are used when prompting them to play or when they make a pass. They're also included in the text file printed at the end of the game. 
+
+The winner of the game is determined by the score. The max score possible is Boardsize*Boardsize. Each player has their own integer keeping track of the score, p1score and p2score/
+Each player also has their own boolean variable pass1 and pass2 to keep track of whether or not they pass or not. The game plays while p1score and p2score don't add up to 
+Boardsize*Boardsize, or alternatively, while not both boolean pass variables are set to true (one or the other can be false without ending the game). The score is calculated
+by the entire board being searched for B or W discs. Each time it finds one it increments p1score or p2score. This occurs at the end of every valid move. The score for each player 
+is then printed out. When the game ends the scores are printed out to the file Othello-results.txt
+
+A player enters a move in the form a1 where a is a character and 1 is an integer (or p and some integer for a pass), the character being movec and the integer being moved respectively. 
+To use these in the board array they need to be converted and stored in movecolumn and moverow. movecolumn is calculated by taking movec and subtracting from it the ascii value of 'a'(97). 
+If movec is 'a' this means movecolumn will be 97-97=0, the first position in an array. To similarly fit the array moverow is simply moved-1. It is at this point that the program 
+checks that the specified tile is within the confines of the board. If not they will be asked to re-enter a move in the same specified format.
+
+In the normal gameplay loop where a move within the scope of the board is made the function validmove is called. At the start of the function the char current and char opponent 
+variables are initialised to either 'B' or 'W' depending on the value of the player integer passed through the function.
+Using dirrow and dirrcolumn as directions ranging from -1 to 1, the function searches around the move to check for an opponent's tile with nested for loops.
+If it finds such a tile the function continues searching in that direction until it finds the current player's disc. If it does it returns valid = 1, as the move is valid. 
+Else the function checks in another direction. If none of the directions yield anything valid = 0 and is returned. The player is then prompted to enter another move and the process continues. 
+If the move IS valid however the move, board and player are passed into another function, flip. 
+
+Flip is based off of the validmove function, although it doesn't return an integer. Like validmove the function searches in the eight directions around the specified tile. Unlike
+validmove it flips the opponent's tiles (B or W depending on whether player passed is 1 or 2) on the way back from searching them and always searches in all directions so it can
+flip all relevant discs. The flip function is only called if validmove retuns 1. It is not called in the instance of a pass. After the discs are flipped showboard is called to
+show the changed board, the score is calculated and the players are switched.
+
+A player is only allowed to pass (denoted by p and some integer) if they have no valid moves available. To check this the validpass function is called, with the board and player
+parameters. Instead of rehashing the validmove function again the function instead calls the function for every blank tile on the board. If even one of these moves register as
+a valid move valid=0 and the player is asked to enter a vaid move. If all tiles are searched and no valid moves are found valid = 1 and the player is allowed to pass their turn.
+the flip and showboard functions aren't called and the score isn't recalculated since no new moves have been made. Instead currentpass and either pass1 or pass2 are set to true
+and the next player plays. If they too can't make a move, the game ends.
+
+Once the game is over the final scores are printed out and the winner is announced. A tie is also possible. To simplify writing the winner out to the file a string called
+winner has the name of the winning player copied into it using strcpy. If the results of the game is a tie the winner string simply displays the message its been initialised with,
+announcing that the game is a tie. After checking that the file othello-results.txt can be written to, these details and the time of the game (calculated using time_t) are written to
+the file using frwite. At this point the file is then closed with fclose and the program ends.
+
